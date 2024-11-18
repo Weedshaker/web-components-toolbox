@@ -87,6 +87,30 @@ export default class MultiLevelNavigation extends Mutation() {
 
     this.aLinkClickListener = event => {
       if (event.currentTarget) {
+        let template
+        if ((template = event.currentTarget.parentElement.querySelector('template'))) {
+          const templateContent = template.content
+          const notDefined = Array.from(templateContent.querySelectorAll(':not(:defined)')).filter(node => !customElements.get(node.tagName.toLowerCase()))
+          template.replaceWith(templateContent)
+          if (notDefined?.length) {
+            if (document.body.hasAttribute(this.getAttribute('load-custom-elements') || 'load-custom-elements')) {
+              this.dispatchEvent(new CustomEvent(this.getAttribute('load-custom-elements') || 'load-custom-elements', {
+                detail: {
+                  nodes: notDefined
+                },
+                bubbles: true,
+                cancelable: true,
+                composed: true
+              }))
+            } else {
+              console.error(
+                'There are :not(:defined) web components in the template. You must load through wc-config or manually:',
+                notDefined,
+                this
+              )
+            }
+          }
+        }
         // If desktop and use-hover-listener attribute exists
         if (this.isDesktop && this.useHoverListener) {
           if (!event.currentTarget.getAttribute('href') || event.currentTarget.getAttribute('href') === '#') this.setDesktopMainNavItems(event)
