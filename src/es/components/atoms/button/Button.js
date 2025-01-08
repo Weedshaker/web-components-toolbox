@@ -12,11 +12,11 @@ import { Hover } from '../../prototypes/Hover.js'
  * @type {CustomElementConstructor}
  */
 export default class Button extends Hover() {
-  static get observedAttributes () {
+  static get observedAttributes() {
     return ['label', 'disabled']
   }
 
-  constructor (options = {}, ...args) {
+  constructor(options = {}, ...args) {
     // @ts-ignore
     super({ hoverInit: undefined, importMetaUrl: import.meta.url, ...options }, ...args)
 
@@ -106,7 +106,7 @@ export default class Button extends Hover() {
     })
   }
 
-  connectedCallback () {
+  connectedCallback() {
     super.connectedCallback()
     this.buttonTagName = this.hasAttribute('href') ? 'a' : 'button'
     if (this.shouldRenderCSS()) this.renderCSSPromise = this.renderCSS()
@@ -125,22 +125,22 @@ export default class Button extends Hover() {
     }
   }
 
-  connectedCallbackOnce () {
+  connectedCallbackOnce() {
     if (document.body.hasAttribute('wc-config-load')) {
       this.wcConfigLoadListener()
     } else {
       document.body.addEventListener(this.getAttribute('wc-config-load') || 'wc-config-load', this.wcConfigLoadListener, { once: true })
     }
-    this.connectedCallbackOnce = () => {}
+    this.connectedCallbackOnce = () => { }
   }
 
-  disconnectedCallback () {
+  disconnectedCallback() {
     this.button.removeEventListener('click', this.clickListener)
     if (this.getAttribute('answer-event-name')) document.body.removeEventListener(this.getAttribute('answer-event-name'), this.answerEventListener)
   }
 
   // @ts-ignore
-  attributeChangedCallback (name, oldValue, newValue) {
+  attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'label') {
       this.labelText = newValue
       if (this.label) {
@@ -158,7 +158,7 @@ export default class Button extends Hover() {
    *
    * @return {boolean}
    */
-  shouldRenderCSS () {
+  shouldRenderCSS() {
     return !this.root.querySelector(`${this.cssSelector} > style[_css]`)
   }
 
@@ -167,7 +167,7 @@ export default class Button extends Hover() {
    *
    * @return {boolean}
    */
-  shouldRenderHTML () {
+  shouldRenderHTML() {
     return !this.button || !this.label
   }
 
@@ -176,7 +176,7 @@ export default class Button extends Hover() {
    *
    * @return {Promise<void>}
    */
-  renderCSS () {
+  renderCSS() {
     this.css = /* css */`
       :host {
         cursor: unset !important;
@@ -335,13 +335,13 @@ export default class Button extends Hover() {
    *
    * @return {Promise<void>}
    */
-  fetchTemplate () {
+  fetchTemplate() {
     const replaces = this.buttonTagName === 'a'
       ? [{
-          pattern: '([^-]{1})button',
-          flags: 'g',
-          replacement: '$1a'
-        }]
+        pattern: '([^-]{1})button',
+        flags: 'g',
+        replacement: '$1a'
+      }]
       : []
     switch (this.getAttribute('namespace')) {
       case 'button-primary-':
@@ -451,6 +451,13 @@ export default class Button extends Hover() {
           namespace: false,
           replaces
         }])
+      case 'button-v2-':
+        return this.fetchCSS([{
+          // @ts-ignore
+          path: `${this.importMetaUrl}./v2-/v2-.css`,
+          namespace: false,
+          replaces
+        }])
       default:
         return Promise.resolve()
     }
@@ -461,15 +468,15 @@ export default class Button extends Hover() {
    *
    * @return {Promise<void>}
    */
-  renderHTML () {
+  renderHTML() {
     const alreadyIncludedNodes = Array.from(this.root.querySelectorAll(`${this.cssSelector} > :not(style)`))
     this.html = /* html */`
       <${this.buttonTagName}
         part="button"
         ${this.classList.contains('active') ? 'class="active"' : ''}
         ${this.buttonTagName === 'a'
-          ? `href="${this.getAttribute('href')}" target="${this.getAttribute('target') || '_self'}" ${this.hasAttribute('rel') ? `rel="${this.getAttribute('rel')}"` : ''}`
-          : ''}
+        ? `href="${this.getAttribute('href')}" target="${this.getAttribute('target') || '_self'}" ${this.hasAttribute('rel') ? `rel="${this.getAttribute('rel')}"` : ''}`
+        : ''}
         type="${this.hasAttribute('type') ? this.getAttribute('type') : 'button'}">
         <span id="label"${!this.labelText ? ' class="hide"' : ''}>${this.labelText || ''}</span>
       </${this.buttonTagName}>
@@ -494,7 +501,7 @@ export default class Button extends Hover() {
    * @param {(value: any)=>void} [resolve=undefined]
    * @return {{origEvent: Event | null, tags: [string], isActive: boolean, fetchSubTags: boolean, clearSubTags: boolean, this: Button, textContent: string, pushHistory?: boolean, resolve?: (value: any)=>void}}
    */
-  getEventDetail (event, pushHistory, resolve) {
+  getEventDetail(event, pushHistory, resolve) {
     return {
       origEvent: event,
       tags: [this.getAttribute('tag')],
@@ -508,15 +515,15 @@ export default class Button extends Hover() {
     }
   }
 
-  get button () {
+  get button() {
     return this.root.querySelector(this.buttonTagName)
   }
 
-  get label () {
+  get label() {
     return this.root.querySelector('#label')
   }
 
-  get downloadIcon () {
+  get downloadIcon() {
     let iconImg
     iconImg = document.createElement('div')
     iconImg.innerHTML = /* html */ `

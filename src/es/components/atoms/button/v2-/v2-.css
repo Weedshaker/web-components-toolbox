@@ -1,0 +1,7 @@
+:host {
+  --button-v2-background-color: var(--button-v2-background-color-custom, var(--color-secondary, var(--m-orange-600)));
+  --button-v2-background-color-hover: var(--button-v2-background-color--hover-custom, var(--m-orange-900, #803300));
+  --button-v2-color: var(--button-v2-color-custom, var(--m-white, white));
+  --button-v2-padding: var(--button-v2-padding-custom, 0 1.5rem);
+  --button-v2-height: var(--button-v2-height-custom, 3rem);
+}
