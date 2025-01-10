@@ -45,7 +45,7 @@ import { Shadow } from '../../prototypes/Shadow.js'
  * }
  */
 export default class Logo extends Shadow() {
-  constructor (options = {}, ...args) {
+  constructor(options = {}, ...args) {
     super({ importMetaUrl: import.meta.url, ...options }, ...args)
 
     this.textSelector = ':not(img):not(a):not(style):not(script)'
@@ -71,13 +71,13 @@ export default class Logo extends Shadow() {
     }
   }
 
-  connectedCallback () {
+  connectedCallback() {
     if (this.shouldRenderCSS()) this.renderCSS()
     if (this.shouldRenderHTML()) this.renderHTML()
     self.addEventListener('resize', this.resizeListener)
   }
 
-  disconnectedCallback () {
+  disconnectedCallback() {
     self.removeEventListener('resize', this.resizeListener)
   }
 
@@ -86,7 +86,7 @@ export default class Logo extends Shadow() {
    *
    * @return {boolean}
    */
-  shouldRenderCSS () {
+  shouldRenderCSS() {
     return !this.root.querySelector(`${this.cssSelector} > style[_css]`)
   }
 
@@ -95,7 +95,7 @@ export default class Logo extends Shadow() {
    *
    * @return {boolean}
    */
-  shouldRenderHTML () {
+  shouldRenderHTML() {
     return !this.img && !!this.getAttribute('src')
   }
 
@@ -104,7 +104,7 @@ export default class Logo extends Shadow() {
    *
    * @return {Promise<void>}
    */
-  renderCSS () {
+  renderCSS() {
     this.css = /* css */`
       :host {
         align-items: var(--align-items, center);
@@ -206,7 +206,7 @@ export default class Logo extends Shadow() {
    *
    * @return {Promise<void>}
    */
-  fetchTemplate () {
+  fetchTemplate() {
     switch (this.getAttribute('namespace')) {
       case 'logo-default-':
         return this.fetchCSS([{
@@ -216,6 +216,11 @@ export default class Logo extends Shadow() {
       case 'logo-partner-':
         return this.fetchCSS([{
           path: `${this.importMetaUrl}./partner-/partner-.css`, // apply namespace since it is specific and no fallback
+          namespace: false
+        }])
+      case 'logo-v2-':
+        return this.fetchCSS([{
+          path: `${this.importMetaUrl}./v2-/v2-.css`, // apply namespace since it is specific and no fallback
           namespace: false
         }])
       default:
@@ -228,7 +233,7 @@ export default class Logo extends Shadow() {
    *
    * @return {void}
    */
-  renderHTML () {
+  renderHTML() {
     this.img = this.root.querySelector('img') || document.createElement('img')
     this.img.setAttribute('src', this.getAttribute('src'))
     this.img.setAttribute('alt', this.getAttribute('alt'))
@@ -270,11 +275,11 @@ export default class Logo extends Shadow() {
     })
   }
 
-  get a () {
+  get a() {
     return this.root.querySelector('a')
   }
 
-  get text () {
+  get text() {
     return this.root.querySelector(this.textSelector)
   }
 }

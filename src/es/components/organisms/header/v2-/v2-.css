@@ -1,0 +1,26 @@
+:host {
+    --header-v2-padding: 1.75rem 4rem;
+    --header-v2-margin: 0 auto;
+    --header-v2-content-width: 100%;
+    --header-v2-justify-content: start;
+    --header-v2-background-color: white;
+    --header-v2-width: auto;
+    --header-v2-flex-direction: row;
+    --header-v2-align-items: center;
+    --header-v2-logo-width:auto;
+}
+
+:host>header>a-logo {
+    position: unset;
+    transform: none;
+}
+
+:host>header>*:first-child {
+    align-self: auto;
+}
+
+:host > header > m-navigation-two {
+    /* width: auto; */
+    /* or width: initial; */
+    flex-grow: 1;
+}
