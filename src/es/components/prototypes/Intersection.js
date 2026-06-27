@@ -55,7 +55,9 @@ export const Intersection = (ChosenClass = Shadow()) => class Intersection exten
       if (intersectionObserverInit) {
         // add default IntersectionObserverInit Props
         intersectionObserverInit = Object.assign({
-          root: undefined,
+          root: this.getAttribute('self-root-name')
+            ? self[this.getAttribute('self-root-name')]
+            : undefined,
           rootMargin: '200px 0px 200px 0px',
           threshold: 0
         }, intersectionObserverInit)
