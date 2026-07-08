@@ -48,7 +48,7 @@ export default class DialogClipboard extends Dialog {
   }
 
   attributeChangedCallback (name, oldValue, newValue) {
-    if (oldValue !== null && oldValue !== newValue) this.copyValue = this.getAttribute('data')
+    if (oldValue !== newValue) this.copyValue = this.getAttribute('data')
   }
 
   /**
