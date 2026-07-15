@@ -60,3 +60,17 @@ export const  escapeHTML = unsafe_str => {
     .replace(/\'/g, '&#39;')
     .replace(/\//g, '&#x2F;')
 }
+
+export const cssVarToHexRgba = (varName, tempAppendToEl = document.body, fallbackAlpha = 1) => {
+  const el = document.createElement('div')
+  el.style.color = `var(${varName})`
+  tempAppendToEl.appendChild(el)
+  const computed = getComputedStyle(el).color
+  tempAppendToEl.removeChild(el)
+  const match = computed.match(/rgba?\(([^)]+)\)/)
+  const parts = match[1].split(',').map(s => parseFloat(s.trim()))
+  const [r, g, b, a = fallbackAlpha] = parts
+  const toHex = n => Math.round(n).toString(16).padStart(2, '0')
+  const alphaHex = toHex(a * 255)
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}${alphaHex}`
+}

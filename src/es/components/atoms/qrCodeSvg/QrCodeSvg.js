@@ -1,5 +1,6 @@
 // @ts-check
 import { Shadow } from '../../prototypes/Shadow.js'
+import { cssVarToHexRgba } from '../../../helpers/Helpers.js'
 
 /* global self */
 
@@ -61,16 +62,12 @@ export default class QrCodeSvg extends Shadow() {
    */
   renderCSS () {
     this.css = /* css */`
-      :host > svg {
-        height: var(--height, auto);
-        max-height: var(--max-height, 75dvh);
-        width: var(--width, 100%);
+      :host > canvas {
+        height: var(--height, auto) !important;
+        width: var(--width, min(var(--max-height, 75dvh), 100%)) !important
       }
       :host > h5 {
         color: var(--color-error, red);
-      }
-      @media only screen and (max-width: _max-width_) {
-        :host {}
       }
     `
     return Promise.resolve()
@@ -87,14 +84,16 @@ export default class QrCodeSvg extends Shadow() {
         this.html = ''
         return this.html = '<h5>Warning: String too long! The qr code can not be generated...</h5>'
       }
-      this.html = QRCode({
-        msg: this.getAttribute('data'),
-        pad: 0,
-        pal: ['#000', '#fff']
+      this.html = document.createElement('canvas')
+      QRCode.toCanvas(this.svg, this.getAttribute('data'), {
+        margin: 0,
+        width: self.outerWidth,
+        color: {
+          dark: cssVarToHexRgba(`--${this.getAttribute('namespace') || ''}color`, this.root),
+          light: '#0000'
+        }
       })
       this.svg.setAttribute('part', 'svg')
-      this.root.querySelector('[fill="#000"]').setAttribute('fill', `var(--${this.getAttribute('namespace') || ''}color, black)`)
-      this.root.querySelector('[fill="#fff"]').setAttribute('fill', `var(--${this.getAttribute('namespace') || ''}background-color, transparent)`)
     })
   }
 
@@ -109,7 +108,6 @@ export default class QrCodeSvg extends Shadow() {
       // @ts-ignore
       if (document.head.querySelector(`#${globalNamespace}`) || self[globalNamespace]) return resolve(self[globalNamespace])
       const script = document.createElement('script')
-      script.setAttribute('type', 'module')
       script.setAttribute('id', globalNamespace)
       script.setAttribute('src', url)
       // @ts-ignore
@@ -121,7 +119,8 @@ export default class QrCodeSvg extends Shadow() {
     }))
   }
 
+  // Note: it used to be a svg element, but that qr library failed to perform so the new one uses canvas
   get svg () {
-    return this.root.querySelector('svg')
+    return this.root.querySelector('canvas')
   }
 }
