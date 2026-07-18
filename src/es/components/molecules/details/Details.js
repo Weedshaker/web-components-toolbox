@@ -225,7 +225,7 @@ export const Details = (ChosenHTMLElement = Mutation(Anchor())) => class Details
               paddingBottom: '0px'
             },
             { // to
-              height: `${this.content.offsetHeight}px`,
+              height: `${this.content ? `${this.content.offsetHeight}px` : 'auto'}`,
               margin: this.isMobile
                 ? `var(--${this.namespace || ''}child-margin-mobile, var(--${this.namespace || ''}child-margin, 0))`
                 : `var(--${this.namespace || ''}child-margin, 0)`,
@@ -249,7 +249,7 @@ export const Details = (ChosenHTMLElement = Mutation(Anchor())) => class Details
                 padding-bottom: 0px;
               }
               100% {
-                height: ${this.content.offsetHeight}px;
+                height: ${this.content ? `${this.content.offsetHeight}px` : 'auto'};
                 margin: var(--child-margin, 0);
                 padding: var(--child-padding, 0);
               }
@@ -264,7 +264,7 @@ export const Details = (ChosenHTMLElement = Mutation(Anchor())) => class Details
                   padding-bottom: 0px;
                 }
                 100% {
-                  height: ${this.content.offsetHeight}px;
+                  height: ${this.content ? `${this.content.offsetHeight}px` : 'auto'};
                   margin: var(--child-margin-mobile, var(--child-margin, 0));
                   padding: var(--child-padding-mobile, var(--child-padding, 0));
                 }
@@ -297,7 +297,7 @@ export const Details = (ChosenHTMLElement = Mutation(Anchor())) => class Details
           Array.from(this.root.querySelectorAll(':host details[open] summary ~ *')).forEach(element => {
             element.animate([
               { // from
-                height: `${this.content.offsetHeight}px`,
+                height: `${this.content ? `${this.content.offsetHeight}px` : 'auto'}`,
                 margin: this.isMobile
                   ? `var(--${this.namespace || ''}child-margin-mobile, var(--${this.namespace || ''}child-margin, 0))`
                   : `var(--${this.namespace || ''}child-margin, 0)`,
@@ -322,7 +322,7 @@ export const Details = (ChosenHTMLElement = Mutation(Anchor())) => class Details
           this.setCss(/* CSS */`
             @keyframes open {
               0% {
-                height: ${this.content.offsetHeight}px;
+                height: ${this.content ? `${this.content}.offsetHeightpx` : 'auto'};
                 margin: var(--child-margin, 0);
                 padding: var(--child-padding, 0);
               }
@@ -337,7 +337,7 @@ export const Details = (ChosenHTMLElement = Mutation(Anchor())) => class Details
             @media only screen and (max-width: _max-width_) {
               @keyframes open {
                 0% {
-                  height: ${this.content.offsetHeight}px;
+                  height: ${this.content ? `${this.content.offsetHeight}px` : 'auto'};
                   margin: var(--child-margin-mobile, var(--child-margin, 0));
                   padding: var(--child-padding-mobile, var(--child-padding, 0));
                 }
@@ -651,7 +651,7 @@ export const Details = (ChosenHTMLElement = Mutation(Anchor())) => class Details
   }
 
   loadTemplateTag () {
-    if (this.content.tagName === 'TEMPLATE') this.content.replaceWith(this.content.content)
+    if (this.content?.tagName === 'TEMPLATE') this.content.replaceWith(this.content.content)
     this.loadTemplateTag = () => {}
   }
 
