@@ -792,7 +792,8 @@ export const Shadow = (ChosenHTMLElement = HTMLElement) => class Shadow extends 
     }
     // first sanitize tags eg.: <img src="xyz" onload=alert('XSS')>, <img src="xyz" onmouseover=alert('XSS')>, <image/src/onerror=alert('XSS')>, etc.
     // second sanitize tags eg.: <a href="javascript:alert(document.location);">XSS</a>, <form action="javascript:alert(document.location);"><input type="submit" /></form>, etc.
-    return html.replace(/<[a-z][^>]*\bon[a-z]{2,}\s*=[^>]*>/gi, '').replace(/<[a-z][^>]*\bjavascript\s*:[^>]*>/gi, '')
+    // complex look ahead: (?:"[^"]*"|'[^']*'|[^'">])* to fix what a selector like [^>]* would not catch: <img src='x>yz' onerror=alert('XSS')>
+    return html.replace(/<[a-zA-Z][a-zA-Z0-9._-]*(?=(?:"[^"]*"|'[^']*'|[^'">])*(?:\bon[a-z]{2,}\s*=|=\s*["']?\s*javascript\s*:))(?:"[^"]*"|'[^']*'|[^'">])*>/gi, '') // eslint-disable-line
   }
 
   // display trumps hidden property, which we resolve here as well as we allow an animation on show

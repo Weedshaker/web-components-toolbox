@@ -23,6 +23,17 @@ import { Intersection } from '../../prototypes/Intersection.js'
 export default class Iframe extends Intersection() {
   constructor (options = {}, ...args) {
     super(Object.assign(options, { intersectionObserverInit: {}, tabindex: 'no-tabindex-style' }), ...args)
+
+    // parse object passed instead of direct iframe, mostly due to createHTML policy
+    let iframeObj = null
+    try {
+      iframeObj = JSON.parse(this.template.content.textContent)
+    } catch (error) {}
+    if (iframeObj) {
+      this.iframeFromObject = document.createElement('iframe')
+      // @ts-ignore
+      Object.keys(iframeObj).forEach(key => this.iframeFromObject.setAttribute(key, iframeObj[key]))
+    }
   }
 
   connectedCallback () {
@@ -85,17 +96,15 @@ export default class Iframe extends Intersection() {
           !this.iframe.getAttribute('width').includes('%') &&
           this.iframe.getAttribute('height') &&
           !this.iframe.getAttribute('height').includes('%')
-            ? `aspect-ratio: ${this.iframe.getAttribute(
-                'width'
-              )} / ${this.iframe.getAttribute('height')};`
+            ? `aspect-ratio: ${this.iframe.getAttribute('width')} / ${this.iframe.getAttribute('height')} !important;`
             // @ts-ignore
             : console.warn(
                 'This component requires an Iframe with fix/absolute width and height values: ',
                 this
               ) || ''
         }
-        width: 100%;
-        height: auto;
+        width: 100% !important;
+        height: auto !important;
         ${
           this.hasAttribute('background-color')
             ? `background-color: ${this.getAttribute('background-color')};`
@@ -151,7 +160,9 @@ export default class Iframe extends Intersection() {
           if (this.hasAttribute('src')) this.iframe.setAttribute('src', this.getAttribute('src'))
           const templateContent = this.template.content
           this.template.remove()
-          this.html = templateContent
+          this.html = this.iframeFromObject
+            ? this.iframe
+            : templateContent
         },
         this.getAttribute('timeout') && this.getAttribute('timeout') !== null
           ? Number(this.getAttribute('timeout'))
@@ -164,9 +175,8 @@ export default class Iframe extends Intersection() {
   }
 
   get iframe () {
-    return (
-      (this.template && this.template.content.querySelector('iframe')) ||
-      this.root.querySelector('iframe')
-    )
+    return this.iframeFromObject
+      ? this.iframeFromObject
+      : ((this.template && this.template.content.querySelector('iframe')) || this.root.querySelector('iframe'))
   }
 }
