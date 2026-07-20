@@ -793,7 +793,11 @@ export const Shadow = (ChosenHTMLElement = HTMLElement) => class Shadow extends 
     // first sanitize tags eg.: <img src="xyz" onload=alert('XSS')>, <img src="xyz" onmouseover=alert('XSS')>, <image/src/onerror=alert('XSS')>, etc.
     // second sanitize tags eg.: <a href="javascript:alert(document.location);">XSS</a>, <form action="javascript:alert(document.location);"><input type="submit" /></form>, etc.
     // complex look ahead: (?:"[^"]*"|'[^']*'|[^'">])* to fix what a selector like [^>]* would not catch: <img src='x>yz' onerror=alert('XSS')>
-    return html.replace(/<[a-zA-Z][a-zA-Z0-9._-]*(?=(?:"[^"]*"|'[^']*'|[^'">])*(?:\bon[a-z]{2,}\s*=|=\s*["']?\s*javascript\s*:))(?:"[^"]*"|'[^']*'|[^'">])*>/gi, '') // eslint-disable-line
+    return html.replace(/<[a-zA-Z][a-zA-Z0-9._-]*(?=(?:"[^"]*"|'[^']*'|[^'">])*(?:(\bon[a-z]{2,})\s*=|(?:href|src|action|formaction|poster|data|xlink:href)\s*=\s*["']?([^"'<>]*)(?::|&colon;?|&#(?:x0*3a|0*58);?)))(?:"[^"]*"|'[^']*'|[^'">])*>/gi, (match, captureAttributeName, captureAttributeValue) => {
+        if (captureAttributeName) return '' // included an attribute eg. onerror=
+        if (captureAttributeValue && /(javascript|vbscript|data:|&(?:#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]+);?)/i.test(captureAttributeValue.replace(/[\u0000-\u0020]/g, ''))) return '' // included an attribute value eg. ="javascript:"
+        return match
+      }) // eslint-disable-line
   }
 
   // display trumps hidden property, which we resolve here as well as we allow an animation on show
