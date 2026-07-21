@@ -794,8 +794,18 @@ export const Shadow = (ChosenHTMLElement = HTMLElement) => class Shadow extends 
     // second sanitize tags eg.: <a href="javascript:alert(document.location);">XSS</a>, <form action="javascript:alert(document.location);"><input type="submit" /></form>, etc.
     // complex look ahead: (?:"[^"]*"|'[^']*'|[^'">])* to fix what a selector like [^>]* would not catch: <img src='x>yz' onerror=alert('XSS')>
     return html.replace(/<[a-zA-Z][a-zA-Z0-9._-]*(?=(?:"[^"]*"|'[^']*'|[^'">])*(?:(\bon[a-z]{2,})\s*=|(?:href|src|action|formaction|poster|data|xlink:href)\s*=\s*["']?([^"'<>]*)(?::|&colon;?|&#(?:x0*3a|0*58);?)))(?:"[^"]*"|'[^']*'|[^'">])*>/gi, (match, captureAttributeName, captureAttributeValue) => {
-        if (captureAttributeName) return '' // included an attribute eg. onerror=
-        if (captureAttributeValue && /(javascript|vbscript|data:|&(?:#[0-9]{1,7}|#x[0-9a-f]{1,6}|[a-z][a-z0-9]{1,31}(?=;|[^a-z0-9'">=-])))/i.test(captureAttributeValue.replace(/[\u0000-\u0020]/g, ''))) return '' // included an attribute value eg. ="javascript:"
+        // the regex above does select only <node... elements. then looks for:
+        // 1. any attribute name starting with "on" + two alphabetic characters eg. "oner"
+        // 2. any attribute name called href, src, action, formaction, poster or data with a value containing colon ":", these are the known possible javascript as attribute value execution sinks (not value is going to be html parsed and entities like &#115; = "s" or &Tab; = "" need to be accounted for)
+        // remove all 1. on... attribute containing nodes
+        if (captureAttributeName) return ''
+        if (captureAttributeValue) {
+          const cleanedMatch = match.replace(/[\u0000-\u0020]/g, '')
+          // remove all 2. by testing all attribute values for javascript, vbscript, data and any decimal and hexadecimal html entity
+          if (/(javascript|vbscript|data|&(?:#[0-9]{1,7}|#x[0-9a-f]{1,6}))/i.test(cleanedMatch)) return ''
+          // remove all 2. by testing for strings javascript, vbscript and data obfuscated with named html entities eg.: &tab; <a href="j&Tab;avascript:alert(1)"> , j&notanentity;avascript: , etc.
+          if (/(?:(?:j(&[A-Za-z][A-Za-z0-9]{1,31};?)*a(&[A-Za-z][A-Za-z0-9]{1,31};?)*v(&[A-Za-z][A-Za-z0-9]{1,31};?)*a.*|v(&[A-Za-z][A-Za-z0-9]{1,31};?)*b(&[A-Za-z][A-Za-z0-9]{1,31};?)*)s(&[A-Za-z][A-Za-z0-9]{1,31};?)*c(&[A-Za-z][A-Za-z0-9]{1,31};?)*r(&[A-Za-z][A-Za-z0-9]{1,31};?)*i(&[A-Za-z][A-Za-z0-9]{1,31};?)*p(&[A-Za-z][A-Za-z0-9]{1,31};?)*t|d(&[A-Za-z][A-Za-z0-9]{1,31};?)*a(&[A-Za-z][A-Za-z0-9]{1,31};?)*t(&[A-Za-z][A-Za-z0-9]{1,31};?)*a(&[A-Za-z][A-Za-z0-9]{1,31};?)*)/i.test(cleanedMatch)) return ''
+        }
         return match
       }) // eslint-disable-line
   }
