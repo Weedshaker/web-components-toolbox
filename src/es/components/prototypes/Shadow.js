@@ -799,12 +799,12 @@ export const Shadow = (ChosenHTMLElement = HTMLElement) => class Shadow extends 
         // 2. any attribute name called href, src, action, formaction, poster or data with a value containing colon ":", these are the known possible javascript as attribute value execution sinks (not value is going to be html parsed and entities like &#115; = "s" or &Tab; = "" need to be accounted for)
         // remove all 1. on... attribute containing nodes
         if (captureAttributeName) return ''
-        if (captureAttributeValue) {
+        if (captureAttributeValue !== undefined) {
           const cleanedMatch = match.replace(/[\u0000-\u0020]/g, '')
           // remove all 2. by testing all attribute values for javascript, vbscript, data and any decimal and hexadecimal html entity
-          if (/(javascript|vbscript|data|&(?:#[0-9]{1,7}|#x[0-9a-f]{1,6}))/i.test(cleanedMatch)) return ''
+          if (/(javascript|vbscript|data|&(?:#[0-9]{1,7}|#x[0-9a-f]{1,6}))([^"'<>]*)(?::|&colon;?|&#(?:x0*3a|0*58);?)/i.test(cleanedMatch)) return ''
           // remove all 2. by testing for strings javascript, vbscript and data obfuscated with named html entities eg.: &tab; <a href="j&Tab;avascript:alert(1)"> , j&notanentity;avascript: , etc.
-          if (/(?:(?:j(&[A-Za-z][A-Za-z0-9]{1,31};?)*a(&[A-Za-z][A-Za-z0-9]{1,31};?)*v(&[A-Za-z][A-Za-z0-9]{1,31};?)*a.*|v(&[A-Za-z][A-Za-z0-9]{1,31};?)*b(&[A-Za-z][A-Za-z0-9]{1,31};?)*)s(&[A-Za-z][A-Za-z0-9]{1,31};?)*c(&[A-Za-z][A-Za-z0-9]{1,31};?)*r(&[A-Za-z][A-Za-z0-9]{1,31};?)*i(&[A-Za-z][A-Za-z0-9]{1,31};?)*p(&[A-Za-z][A-Za-z0-9]{1,31};?)*t|d(&[A-Za-z][A-Za-z0-9]{1,31};?)*a(&[A-Za-z][A-Za-z0-9]{1,31};?)*t(&[A-Za-z][A-Za-z0-9]{1,31};?)*a(&[A-Za-z][A-Za-z0-9]{1,31};?)*)/i.test(cleanedMatch)) return ''
+          if (/(?:(?:j(&[A-Za-z][A-Za-z0-9]{1,31};?)*a(&[A-Za-z][A-Za-z0-9]{1,31};?)*v(&[A-Za-z][A-Za-z0-9]{1,31};?)*a.*|v(&[A-Za-z][A-Za-z0-9]{1,31};?)*b(&[A-Za-z][A-Za-z0-9]{1,31};?)*)s(&[A-Za-z][A-Za-z0-9]{1,31};?)*c(&[A-Za-z][A-Za-z0-9]{1,31};?)*r(&[A-Za-z][A-Za-z0-9]{1,31};?)*i(&[A-Za-z][A-Za-z0-9]{1,31};?)*p(&[A-Za-z][A-Za-z0-9]{1,31};?)*t|d(&[A-Za-z][A-Za-z0-9]{1,31};?)*a(&[A-Za-z][A-Za-z0-9]{1,31};?)*t(&[A-Za-z][A-Za-z0-9]{1,31};?)*a(&[A-Za-z][A-Za-z0-9]{1,31};?)*)([^"'<>]*)(?::|&colon;?|&#(?:x0*3a|0*58);?)/i.test(cleanedMatch)) return ''
         }
         return match
       }) // eslint-disable-line
